@@ -98,7 +98,7 @@ const UserProfile = () => {
         top={5}
         right={5}
         zIndex="99999"
-        boxShadow="dark-lg"
+        boxShadow="2xl"
         onClick={onOpenQR}
       />
       <Modal isOpen={isOpenQR} onClose={onCloseQR}>
@@ -115,6 +115,7 @@ const UserProfile = () => {
               <QRCodeSVG
                 value={`https://skube.xyz/u/${router.asPath}`}
                 size={300}
+                style={{ borderRadius: 10 }}
               />
             </Box>
             <Logo />
@@ -166,7 +167,8 @@ const UserProfile = () => {
             <Text
               fontSize="xl"
               fontWeight={500}
-              color="gray.500"
+              bgGradient={`linear(to-l, ${SAMPLE_DATA.colors[1]}, ${SAMPLE_DATA.colors[0]})`}
+              bgClip="text"
               lineHeight={1}
             >
               {SAMPLE_DATA.description}
@@ -193,6 +195,18 @@ const UserProfile = () => {
                   </Link>
                 );
               })}
+              {SAMPLE_DATA.resume && (
+                <Link
+                  href={ipfsLink(SAMPLE_DATA.resume)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  fontWeight={500}
+                  color="gray.500"
+                  fontSize="md"
+                >
+                  Resume
+                </Link>
+              )}
             </HStack>
           </VStack>
           {/* Other NFTs and Badges */}
