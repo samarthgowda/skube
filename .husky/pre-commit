@@ -1,0 +1,20 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo '🏗️ Styling, testing and building your project before committing'
+
+pnpx lint-staged ||
+(
+    echo '\n💩 Ew failed so badly. View the errors above to see why.\n';
+    false;
+)
+
+pnpm run build ||
+(
+    echo '\n👷 Even Bob the Builder could not build your code. View the errors above to see why.\n';
+    false;
+)
+
+echo '🚀 SKUBE TO THE MOON! Great work, commiting now.'
+
+
