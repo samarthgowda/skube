@@ -15,8 +15,6 @@ export default function NFTCard({ metadata, contractAddress, tokenId }) {
   // const { isLoading: isLoadingMetadata, data: metadata } =
   //   useMetadataQuery(uri);
 
-  console.log(metadata);
-
   return (
     <Box>
       <Image

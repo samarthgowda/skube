@@ -1,5 +1,6 @@
 import { Box, Button, Flex, HStack, IconButton, Link } from "@chakra-ui/react";
-import Connect from "components/Connect";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+// import Connect from "components/Connect";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React from "react";
@@ -169,7 +170,7 @@ function NavBar(props) {
         <Logo />
         <NavTabs />
         <Flex align="center" gap={2}>
-          <Connect />
+          <ConnectButton />
           <NavMore />
         </Flex>
       </NavBarContainer>

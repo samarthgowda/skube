@@ -25,7 +25,13 @@ export default async function handler(
           address as string
         );
 
-        res.status(200).json(myProfileNft);
+        if (myProfileNft.length > 0) {
+          res.status(200).json(myProfileNft);
+        } else {
+          throw {
+            message: "Unable to find profile.",
+          };
+        }
         break;
       }
 
