@@ -27,24 +27,22 @@ function NavTabs() {
   const router = useRouter();
 
   return (
-    <HStack
-      alignItems="center"
-      rounded="xl"
-      bgColor="white"
-      p={0.5}
-      spacing={2}
-      shadow="sm"
-    >
+    <HStack ml={2} alignItems="center" flexGrow={1}>
       {(LINKS || []).map((link) => {
         const current = router.pathname === link.to;
         return (
           <NextLink key={link.name} href={link.to} passHref>
             <Button
-              size="md"
-              colorScheme={current ? "gray" : "white"}
-              color={current ? "gray.900" : "gray.600"}
-              _hover={{ color: "gray.900" }}
-              fontWeight={current ? 600 : 500}
+              size="sm"
+              colorScheme="white"
+              bgGradient={
+                current
+                  ? "linear(to-l, blue.400, primary.400)"
+                  : "linear(to-l, gray.400, gray.400)"
+              }
+              bgClip="text"
+              _hover={{ color: "gray.600" }}
+              fontWeight={600}
               fontSize="lg"
             >
               {link.name}
@@ -62,7 +60,6 @@ function NavBarContainer({ children, ...props }) {
       as="nav"
       align="center"
       gap={2}
-      justify="space-between"
       flexDirection={{ base: "column", md: "row" }}
       w="100%"
       mx="auto"

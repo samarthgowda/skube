@@ -31,7 +31,7 @@ import { useFetchProfileNftQuery } from "redux/services/users";
 import { useEnsAddress } from "wagmi";
 
 const UserProfile = () => {
-  const network = "MAINNET"; // TODO: Configure this
+  const network = "MUMBAI"; // TODO: Configure this
   const router = useRouter();
   const { addens: addressOrENS } = router.query;
 
@@ -60,7 +60,6 @@ const UserProfile = () => {
     refetchOnMountOrArgChange: true,
   });
 
-  // TODO: Call wagmi to get address if it is a ENS
   const {
     isLoading: isLoadingOtherNFTs,
     data: otherNFTs,
@@ -160,7 +159,7 @@ const UserProfile = () => {
           >
             <Box my={4}>
               <QRCodeSVG
-                value={`https://skube.xyz/u/${router.asPath}`}
+                value={`https://skube.xyz/${router.asPath}`}
                 size={300}
                 style={{ borderRadius: 10 }}
               />
@@ -203,6 +202,7 @@ const UserProfile = () => {
                   src={ipfsLink(currentProfile.avatar)}
                   size="2xl"
                   objectFit="cover"
+                  bgColor={currentProfile.colors[0]}
                   display="inline-block"
                 />
               </Box>
@@ -237,13 +237,13 @@ const UserProfile = () => {
                       fontWeight={500}
                       color="gray.500"
                       fontSize="md"
-                      p={2}
+                      p={4}
                       borderColor="gray.200"
                       borderWidth="1.5px"
                       rounded="lg"
                       transition="ease-in-out 0.1s"
                       _hover={{
-                        shadow: "sm",
+                        shadow: "md",
                         transition: "ease-in-out 0.1s",
                       }}
                     >
@@ -271,17 +271,22 @@ const UserProfile = () => {
                   </GridItem>
                 );
               })}
-              {/* {currentProfile.resume && (
+              {currentProfile.resume && (
                 <GridItem as={LinkBox}>
                   <LinkBox
                     as="div"
                     fontWeight={500}
                     color="gray.500"
                     fontSize="md"
-                    p={2}
-                    borderColor="gray.400"
-                    borderWidth="2px"
+                    p={4}
+                    borderColor="gray.200"
+                    borderWidth="1.5px"
                     rounded="lg"
+                    transition="ease-in-out 0.1s"
+                    _hover={{
+                      shadow: "md",
+                      transition: "ease-in-out 0.1s",
+                    }}
                   >
                     <Box textOverflow="clip">
                       <Text
@@ -291,68 +296,77 @@ const UserProfile = () => {
                       >
                         Resume
                       </Text>
-                      <Text color="gray.500" fontWeight={400}>
-                        {currentProfile.resume}
-                      </Text>
                       <LinkOverlay
-                        href={ipfsLink(currentProfile.resume)}
+                        href={currentProfile.resume}
                         target="_blank"
                         rel="noopener noreferrer"
+                        color="gray.500"
+                        fontWeight={400}
+                        mb={1}
                       >
-                        Click here
+                        Click here to view
                       </LinkOverlay>
                     </Box>
                   </LinkBox>
                 </GridItem>
-              )} */}
+              )}
             </Grid>
           </VStack>
+
           {/* Other NFTs and Badges */}
-          <Box w="100%">
-            <Box mb={8} w="100%">
-              <Heading as="h3" size="lg" mb={2}>
-                Other NFTs & Badges
-              </Heading>
-              <Text
-                fontSize="lg"
-                fontWeight={500}
-                color="gray.500"
-                lineHeight={1}
-              >
-                View all the other NFTs and badges that {currentProfile.name}{" "}
-                owns
-              </Text>
-            </Box>
-            <Grid
-              templateColumns={{
-                base: "repeat(1, 1fr)",
-                md: "repeat(2, 1fr)",
-                lg: "repeat(3, 1fr)",
-              }}
-              gap={8}
-            >
-              {(otherNFTs || []).map((collection, index) => {
-                return (collection.metadata || []).map((nftData, j) => {
-                  if (
-                    !nftData.metadata ||
-                    !nftData.metadata.image ||
-                    !nftData.metadata.name
-                  ) {
-                    return null;
-                  }
-                  return (
-                    <GridItem key={`${index}-${j}`} w="100%">
-                      <NFTCard
-                        metadata={nftData.metadata}
-                        contractAddress={collection.contractAddress}
-                        tokenId={nftData.tokenId}
-                      />
-                    </GridItem>
-                  );
-                });
-              })}
-            </Grid>
-          </Box>
+          {isLoadingOtherNFTs ? (
+            <Spinner />
+          ) : (
+            otherNFTs &&
+            otherNFTs.length > 0 && (
+              <Box w="100%">
+                <Box mb={8} w="100%">
+                  <Heading as="h3" size="lg" mb={2}>
+                    Other NFTs & Badges
+                  </Heading>
+                  <Text
+                    fontSize="lg"
+                    fontWeight={500}
+                    color="gray.500"
+                    lineHeight={1}
+                  >
+                    View all the other NFTs and badges that{" "}
+                    {currentProfile.name} owns
+                  </Text>
+                </Box>
+                <Grid
+                  templateColumns={{
+                    base: "repeat(1, 1fr)",
+                    md: "repeat(2, 1fr)",
+                    lg: "repeat(3, 1fr)",
+                  }}
+                  gap={8}
+                >
+                  {(otherNFTs || []).map((collection, index) => {
+                    return (collection.metadata || []).map((nftData, j) => {
+                      if (
+                        !nftData ||
+                        !nftData.metadata ||
+                        !nftData.metadata.image ||
+                        !nftData.metadata.name
+                      ) {
+                        return null;
+                      }
+                      return (
+                        <GridItem key={`${index}-${j}`} w="100%">
+                          <NFTCard
+                            metadata={nftData.metadata}
+                            contractAddress={collection.contractAddress}
+                            tokenId={nftData.tokenId}
+                          />
+                        </GridItem>
+                      );
+                    });
+                  })}
+                </Grid>
+              </Box>
+            )
+          )}
         </VStack>
       </Container>
     </>

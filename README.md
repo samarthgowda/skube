@@ -1,6 +1,6 @@
 # Skube
 
-Building an on-chain resume. Mint your own profile, issue badges to yourself and others, and showcase it to the world.
+Building an on-chain professional profile. Mint your own profile, issue badges to yourself and others, and showcase it to the world.
 
 ## Folder Structure
 

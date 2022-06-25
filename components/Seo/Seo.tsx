@@ -5,7 +5,7 @@ const defaultMeta = {
   title: "Skube | Web3 professional profile.",
   siteName: "Skube",
   description:
-    "Skube is building an on-chain resume. Mint your own profile, issue badges to yourself and others, and showcase it to the world. Join the waitlist to be notified!",
+    "Skube is building an on-chain professional profile. Mint your own profile, issue badges to yourself and others, and showcase it to the world. Follow us on Twitter to be notified!",
   url: "https://skube.xyz",
   type: "website",
   robots: "follow, index",

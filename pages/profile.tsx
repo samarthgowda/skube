@@ -1,4 +1,3 @@
-import { Icon, Link } from "@chakra-ui/react";
 import {
   Box,
   Button,
@@ -7,36 +6,38 @@ import {
   Grid,
   GridItem,
   Heading,
+  Icon,
   Image,
   Input,
-  Switch,
+  Link,
+  Spinner,
   Text,
   Textarea,
   Tooltip,
+  useToast,
   useToken,
   VStack,
 } from "@chakra-ui/react";
-import {
-  useAddress,
-  useDisconnect,
-  useMetamask,
-  useNetwork,
-  useNetworkMismatch,
-  useNFTCollection,
-} from "@thirdweb-dev/react";
-import { ChainId } from "@thirdweb-dev/sdk";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import Layout from "components/Layout";
+import Web3Address from "components/Web3Address";
 import * as htmlToImage from "html-to-image";
 import { addIpfsStart } from "lib/ipfs";
 import nftstorage from "lib/nftstorage";
+import NextLink from "next/link";
+import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import Dropzone from "react-dropzone";
+import { BsMoonStarsFill, BsSun } from "react-icons/bs";
 import {
   IoDocumentText,
   IoFileTrayFullOutline,
   IoTrash,
 } from "react-icons/io5";
 import { useFetchProfileNftQuery } from "redux/services/users";
+import { useAccount, useNetwork, useSigner } from "wagmi";
+import { useEnsName } from "wagmi";
 import "@fontsource/mr-de-haviland";
 
 const COLORS = [
@@ -53,15 +54,17 @@ const COLORS = [
 ];
 
 const Profile = () => {
-  const address = useAddress(); // Grab the current user's address
-  const connectWithMetamask = useMetamask(); // Connect with metamask
-  const disconnectWallet = useDisconnect(); // Disconnect from metamask
-  const isOnWrongNetwork = useNetworkMismatch();
-  const [, switchNetwork] = useNetwork();
+  const router = useRouter();
+  const {
+    data: account,
+    isError: isErrorAccount,
+    isLoading: isLoadingAccount,
+  } = useAccount();
+  const { data: signer } = useSigner();
 
-  const profileCollection = useNFTCollection(
-    process.env.NEXT_PUBLIC_PROFILE_COLLECTION_ADDRESS
-  );
+  const { activeChain } = useNetwork();
+
+  const address = account?.address;
 
   const [resume, setResume] = useState(null);
   const [avatar, setAvatar] = useState(null);
@@ -118,6 +121,34 @@ const Profile = () => {
     setAvatar(null);
   };
 
+  const handleBurnProfile = async (tokenId) => {
+    setIsBurning(true);
+    const sdk = new ThirdwebSDK(signer, {
+      gasless: {
+        openzeppelin: {
+          relayerUrl:
+            "https://api.defender.openzeppelin.com/autotasks/f7585fd1-1984-43d0-8ad7-4c3b79e081b2/runs/webhook/573fe504-e732-4c12-b04d-4e4152a59b8b/75sNdsE2CWKMXBTzyAFBzC",
+        },
+      },
+    });
+
+    const profileCollection = sdk.getNFTCollection(
+      process.env.NEXT_PUBLIC_PROFILE_COLLECTION_ADDRESS
+    );
+
+    await profileCollection.burn(tokenId);
+
+    setTimeout(() => {
+      setIsBurning(false);
+      toast({
+        title: "Burned Profile 🔥",
+        description: "Successfully burned your profile.",
+        status: "success",
+      });
+      router.push("/");
+    }, 4 * 60);
+  };
+
   function dataURLtoBlob(dataurl) {
     const arr = dataurl.split(",");
     const mime = arr[0].match(/:(.*?);/)[1];
@@ -141,58 +172,90 @@ const Profile = () => {
 
   const printRef = useRef();
 
+  const toast = useToast();
+  const [isMinting, setIsMinting] = useState(false);
+  const [isBurning, setIsBurning] = useState(false);
+
   const handleCreateProfile = async () => {
-    if (!address) {
-      connectWithMetamask();
-      return;
+    try {
+      await setIsMinting(true);
+
+      toast({
+        title: `🤗 Creating your profile`,
+        description:
+          "Do not close this window, your profile is being minted right now. It may take sometime, so please be patient.",
+        status: "warning",
+        duration: 10000,
+      });
+
+      const element = printRef.current;
+
+      const dataUrl = await htmlToImage.toPng(element);
+
+      const image = dataURLtoBlob(dataUrl);
+      const imageCID = await nftstorage.storeBlob(image);
+      const imageUrl = addIpfsStart(imageCID);
+
+      let resumeUrl = "";
+      if (resume) {
+        const resumeCID = await nftstorage.storeBlob(resume);
+        resumeUrl = addIpfsStart(resumeCID);
+      }
+
+      let avatarUrl = "";
+      if (avatar) {
+        const avatarCID = await nftstorage.storeBlob(avatar);
+        avatarUrl = addIpfsStart(avatarCID);
+      }
+
+      const body = {
+        to: address,
+        metadata: {
+          name: metadata.name,
+          description: metadata.description,
+          image: imageUrl,
+          resume: resumeUrl,
+          avatar: avatarUrl,
+          dark: darkMode,
+          colors: [color1Hex, color2Hex],
+          attributes: metadata.attributes,
+        },
+      };
+
+      const signedPayloadReq = await fetch(`/api/signature/profile`, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+
+      const signedPayload = await signedPayloadReq.json();
+
+      const sdk = new ThirdwebSDK(signer, {
+        gasless: {
+          openzeppelin: {
+            relayerUrl:
+              "https://api.defender.openzeppelin.com/autotasks/f7585fd1-1984-43d0-8ad7-4c3b79e081b2/runs/webhook/573fe504-e732-4c12-b04d-4e4152a59b8b/75sNdsE2CWKMXBTzyAFBzC",
+          },
+        },
+      });
+
+      const profileCollection = sdk.getNFTCollection(
+        process.env.NEXT_PUBLIC_PROFILE_COLLECTION_ADDRESS
+      );
+
+      const tx = await profileCollection?.signature.mint(signedPayload);
+
+      setTimeout(() => {
+        setIsMinting(false);
+        toast({
+          title: "🚀 Welcome to Skube!",
+          description: "Successfully created your profile.",
+          status: "success",
+        });
+        router.push(`/${ens || address}`);
+      }, 4 * 60);
+    } catch (error) {
+      setIsMinting(false);
     }
-
-    if (isOnWrongNetwork) {
-      switchNetwork && switchNetwork(ChainId.Mumbai);
-      return;
-    }
-
-    const element = printRef.current;
-
-    const dataUrl = await htmlToImage.toPng(element);
-
-    const image = dataURLtoBlob(dataUrl);
-    const imageCID = await nftstorage.storeBlob(image);
-    const imageUrl = addIpfsStart(imageCID);
-
-    let resumeUrl = "";
-    if (resume) {
-      const resumeCID = await nftstorage.storeBlob(resume);
-      resumeUrl = addIpfsStart(resumeCID);
-    }
-
-    let avatarUrl = "";
-    if (avatar) {
-      const avatarCID = await nftstorage.storeBlob(avatar);
-      avatarUrl = addIpfsStart(avatarCID);
-    }
-
-    const body = {
-      to: address,
-      metadata: {
-        name: metadata.name,
-        description: metadata.description,
-        image: imageUrl,
-        resume: resumeUrl,
-        avatar: avatarUrl,
-        dark: darkMode,
-        colors: [color1Hex, color2Hex],
-        attributes: metadata.attributes,
-      },
-    };
-
-    const signedPayloadReq = await fetch(`/api/signature/profile`, {
-      method: "POST",
-      body: JSON.stringify(body),
-    });
-
-    const signedPayload = await signedPayloadReq.json();
-    await profileCollection?.signature.mint(signedPayload);
   };
 
   const {
@@ -203,6 +266,68 @@ const Profile = () => {
     skip: !address,
     refetchOnMountOrArgChange: true,
   });
+
+  const {
+    isLoading: isLoadingEns,
+    data: ens,
+    isError: isErrorEns,
+  } = useEnsName({ address: address, chainId: 1 });
+
+  if (isLoadingProfileNft) {
+    return (
+      <Box
+        w="100%"
+        h="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Spinner />
+      </Box>
+    );
+  } else if (profileNft && profileNft.length > 0) {
+    // console.log(profileNft[0].metadata.id.hex);
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        py={8}
+        maxW="md"
+        mx="auto"
+      >
+        <Heading as="h3" size="xl">
+          Minted
+        </Heading>
+        <Text fontWeight={500} color="gray.500" mb={4} textAlign="center">
+          Your wallet (<Web3Address address={address} />) has already minted a
+          profile on {activeChain?.name}.
+        </Text>
+        <Image
+          src={profileNft[0].metadata?.image}
+          alt={metadata?.name || "Claim image"}
+          fit="contain"
+          align="center"
+          h="auto"
+          maxW="100%"
+          mb={4}
+        />
+        <NextLink passHref href={`/${ens || profileNft[0].owner}`}>
+          <Button colorScheme="black">View profile</Button>
+        </NextLink>
+        <Button
+          colorScheme="black"
+          onClick={() => {
+            handleBurnProfile(profileNft[0].metadata.id.hex);
+          }}
+          isLoading={isBurning}
+        >
+          Burn Profile 🔥
+        </Button>
+      </Box>
+    );
+  }
 
   return (
     <Box py={{ base: 8, md: 12, lg: 16 }} px={2} maxW="7xl" mx="auto">
@@ -434,15 +559,23 @@ const Profile = () => {
                   ))}
                 </Box>
               </FormControl>
-              <FormControl>
-                <FormLabel htmlFor="name" mb={0}>
-                  Dark Theme
+              <FormControl isRequired>
+                <FormLabel htmlFor="name" mb={2}>
+                  Theme
                 </FormLabel>
-                <Switch
-                  size="md"
-                  checked={darkMode}
-                  onChange={() => setDarkMode(!darkMode)}
-                />
+                <Tooltip label={darkMode ? "Toggle light" : "Toggle dark"}>
+                  <Button
+                    aria-label="Toggle dark mode"
+                    onClick={() => setDarkMode(!darkMode)}
+                    colorScheme="gray"
+                    variant="outline"
+                    _focus={{ boxShadow: "none" }}
+                    w="fit-content"
+                    rounded="lg"
+                  >
+                    {!darkMode ? <BsMoonStarsFill /> : <BsSun />}
+                  </Button>
+                </Tooltip>
               </FormControl>
               <FormControl>
                 <FormLabel htmlFor="resume">Resume</FormLabel>
@@ -644,6 +777,7 @@ const Profile = () => {
               <Box pt={10} w="100%">
                 {address ? (
                   <Button
+                    isLoading={isMinting}
                     colorScheme="black"
                     type="submit"
                     w="100%"
@@ -653,15 +787,7 @@ const Profile = () => {
                     Create
                   </Button>
                 ) : (
-                  <Button
-                    colorScheme="black"
-                    type="submit"
-                    w="100%"
-                    py={6}
-                    onClick={connectWithMetamask}
-                  >
-                    Connect with Metamask
-                  </Button>
+                  <ConnectButton />
                 )}
               </Box>
             </VStack>

@@ -10,7 +10,7 @@ export default function Layout({
 }) {
   return (
     <Box>
-      <Box bgColor="gray.50">
+      <Box bgColor="white">
         {!bare && <Header />}
         <Container
           maxW={maxW}
