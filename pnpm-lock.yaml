@@ -13,6 +13,8 @@ specifiers:
   '@ethersproject/properties': ^5.6.0
   '@ethersproject/providers': ^5.6.1
   '@fontsource/mr-de-haviland': ^4.5.9
+  '@fontsource/playfair-display': ^4.5.10
+  '@fontsource/syne': ^4.5.9
   '@hapi/iron': ^6.0.0
   '@rainbow-me/rainbowkit': ^0.3.4
   '@reduxjs/toolkit': ^1.8.0
@@ -79,6 +81,8 @@ dependencies:
   '@ethersproject/properties': 5.6.0
   '@ethersproject/providers': 5.6.8
   '@fontsource/mr-de-haviland': 4.5.9
+  '@fontsource/playfair-display': 4.5.10
+  '@fontsource/syne': 4.5.9
   '@hapi/iron': 6.0.0
   '@rainbow-me/rainbowkit': 0.3.4_cc795f34494d412ae66422adc8f4b466
   '@reduxjs/toolkit': 1.8.2_react-redux@7.2.8+react@17.0.2
@@ -1693,6 +1697,14 @@ packages:
 
   /@fontsource/mr-de-haviland/4.5.9:
     resolution: {integrity: sha512-KvpPVcVIZUtMdS4lainJ1mo8141Y0hzRj7cJ/mn2qU5Jx5XjvmdpfpG4N13rAlhw/fLIApZUo6fwKNFVI1js9g==}
+    dev: false
+
+  /@fontsource/playfair-display/4.5.10:
+    resolution: {integrity: sha512-0OXXCJF6wflfJ7HoDcHmAKckubT4BcqGU0JcISjw/SceLzYP6FoycsJJ1jRU01GGrovuba9pYIs6R4y90fk/uA==}
+    dev: false
+
+  /@fontsource/syne/4.5.9:
+    resolution: {integrity: sha512-DDo68cQgUxfNaH/rHvhGByZezF6+uOup7AQFxqa9jDGlY2eTp0m5E379mfKni5oPMLesYOKfOYn7o2qY3M4j7g==}
     dev: false
 
   /@gnosis.pm/safe-core-sdk-types/1.1.0:

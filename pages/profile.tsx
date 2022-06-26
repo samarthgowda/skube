@@ -122,6 +122,14 @@ const Profile = () => {
   };
 
   const handleBurnProfile = async (tokenId) => {
+    const wantsToBurn = window.confirm(
+      "Are you sure you want to burn your profile?"
+    );
+
+    if (!wantsToBurn) {
+      return null;
+    }
+
     setIsBurning(true);
     const sdk = new ThirdwebSDK(signer, {
       gasless: {
@@ -138,15 +146,13 @@ const Profile = () => {
 
     await profileCollection.burn(tokenId);
 
-    setTimeout(() => {
-      setIsBurning(false);
-      toast({
-        title: "Burned Profile 🔥",
-        description: "Successfully burned your profile.",
-        status: "success",
-      });
-      router.push("/");
-    }, 4 * 60);
+    setIsBurning(false);
+    toast({
+      title: "Burned Profile 🔥",
+      description: "Successfully burned your profile.",
+      status: "success",
+    });
+    router.push("/");
   };
 
   function dataURLtoBlob(dataurl) {
@@ -242,17 +248,17 @@ const Profile = () => {
         process.env.NEXT_PUBLIC_PROFILE_COLLECTION_ADDRESS
       );
 
-      const tx = await profileCollection?.signature.mint(signedPayload);
+      await profileCollection?.signature.mint(signedPayload);
 
       setTimeout(() => {
-        setIsMinting(false);
         toast({
           title: "🚀 Welcome to Skube!",
           description: "Successfully created your profile.",
           status: "success",
         });
         router.push(`/${ens || address}`);
-      }, 4 * 60);
+        setIsMinting(false);
+      }, 3 * 60);
     } catch (error) {
       setIsMinting(false);
     }
@@ -286,7 +292,6 @@ const Profile = () => {
       </Box>
     );
   } else if (profileNft && profileNft.length > 0) {
-    // console.log(profileNft[0].metadata.id.hex);
     return (
       <Box
         display="flex"
@@ -313,18 +318,77 @@ const Profile = () => {
           maxW="100%"
           mb={4}
         />
-        <NextLink passHref href={`/${ens || profileNft[0].owner}`}>
-          <Button colorScheme="black">View profile</Button>
-        </NextLink>
-        <Button
-          colorScheme="black"
-          onClick={() => {
-            handleBurnProfile(profileNft[0].metadata.id.hex);
-          }}
-          isLoading={isBurning}
+        <Box
+          fontWeight={500}
+          color="gray.500"
+          fontSize="md"
+          p={4}
+          borderColor="gray.200"
+          borderWidth="1.5px"
+          rounded="lg"
+          display="flex"
+          alignItems="center"
+          w="100%"
         >
-          Burn Profile 🔥
-        </Button>
+          <Box flexGrow={1}>
+            <Text
+              fontWeight={600}
+              bgGradient={`linear(to-l, ${profileNft[0]?.metadata?.colors[1]}, ${profileNft[0]?.metadata?.colors[0]})`}
+              bgClip="text"
+              fontSize="xl"
+            >
+              Profile
+            </Text>
+            <Text display="flex" flexWrap="wrap" fontWeight={500}>
+              Congrats on minting your Skube profile. Now its time to check it
+              out and share it with the world.
+            </Text>
+          </Box>
+          <NextLink passHref href={`/${ens || profileNft[0].owner}`}>
+            <Button colorScheme="black" size="sm" px={6}>
+              View
+            </Button>
+          </NextLink>
+        </Box>
+        <Box
+          fontWeight={500}
+          color="gray.500"
+          fontSize="md"
+          p={4}
+          borderColor="red.500"
+          borderWidth="1.5px"
+          rounded="lg"
+          display="flex"
+          alignItems="center"
+          w="100%"
+          mt={4}
+        >
+          <Box flexGrow={1}>
+            <Text
+              fontWeight={600}
+              bgGradient={`linear(to-l, ${profileNft[0]?.metadata?.colors[1]}, ${profileNft[0]?.metadata?.colors[0]})`}
+              bgClip="text"
+              fontSize="xl"
+            >
+              Danger: Burn Profile
+            </Text>
+            <Text display="flex" flexWrap="wrap" fontWeight={500}>
+              If you want to remove your profile, click here to burn it from
+              your wallet.
+            </Text>
+          </Box>
+          <Button
+            colorScheme="red"
+            size="sm"
+            px={6}
+            onClick={() => {
+              handleBurnProfile(profileNft[0].metadata.id.hex);
+            }}
+            isLoading={isBurning}
+          >
+            Burn
+          </Button>
+        </Box>
       </Box>
     );
   }
@@ -774,7 +838,7 @@ const Profile = () => {
                   Add Attributes
                 </Button>
               </FormControl>
-              <Box pt={10} w="100%">
+              <Box pt={4} w="100%">
                 {address ? (
                   <Button
                     isLoading={isMinting}

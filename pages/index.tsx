@@ -136,9 +136,21 @@ export default function Home() {
                 fontSize={{ base: "6xl", lg: "7xl", xl: "8xl" }}
                 fontWeight={700}
                 mb={4}
+                px={4}
                 lineHeight={1.1}
               >
-                Build your on-chain professional profile
+                Build your{" "}
+                <Box
+                  as="span"
+                  fontWeight={800}
+                  fontStyle="italic"
+                  fontFamily="Playfair Display"
+                  bgGradient="linear(to-br, orange.600, primary.600)"
+                  bgClip="text"
+                >
+                  on-chain
+                </Box>{" "}
+                professional profile
               </Heading>
               <Text
                 fontWeight={500}
@@ -458,6 +470,7 @@ export default function Home() {
               variant="outline"
               mb={6}
               fontSize="md"
+              fontStyle="italic"
             >
               THE FUTURE
             </Badge>

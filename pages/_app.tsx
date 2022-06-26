@@ -19,6 +19,7 @@ import { chain } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 
 import "@rainbow-me/rainbowkit/styles.css";
+import "styles/base.css";
 
 const { chains, provider } = configureChains(
   [chain.polygonMumbai, chain.polygon],
@@ -51,8 +52,8 @@ function MyApp({ Component, pageProps }) {
         chains={chains}
         coolMode
         theme={lightTheme({
-          borderRadius: "medium",
-          accentColor: "#ED64A6",
+          borderRadius: "large",
+          accentColor: "#b002a6",
         })}
       >
         <ThirdwebProvider
