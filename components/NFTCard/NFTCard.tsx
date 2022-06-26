@@ -20,9 +20,9 @@ export default function NFTCard({ metadata, contractAddress, tokenId }) {
       <Image
         src={ipfsLink(metadata?.image)}
         alt={metadata?.name || "Claim image"}
-        rounded="lg"
         fit="contain"
         align="center"
+        rounded="sm"
         w="100%"
         h="auto"
       />

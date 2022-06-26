@@ -488,10 +488,10 @@ export default function Home() {
               fontSize={["lg", "xl"]}
               my={[2, 4, 6]}
             >
-              Skube Protocol allows you to own your decentralized professional
-              profile. With our tools, developers can build apps to issue
-              badges, verify skills, apply to jobs, display profiles, and more
-              all while letting everyone own their data.
+              Skube Protocol allows you to own your web3 professional profile.
+              With our tools, developers can build apps to issue badges, verify
+              skills, apply to jobs, display profiles, and more all while
+              letting everyone own their data.
             </Text>
           </Container>
         </Box>

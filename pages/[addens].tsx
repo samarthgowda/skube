@@ -31,7 +31,7 @@ import { useFetchProfileNftQuery } from "redux/services/users";
 import { useEnsAddress } from "wagmi";
 
 const UserProfile = () => {
-  const network = "MUMBAI"; // TODO: Configure this
+  const network = "MUMBAI";
   const router = useRouter();
   const { addens: addressOrENS } = router.query;
 

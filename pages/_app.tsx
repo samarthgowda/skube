@@ -22,7 +22,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import "styles/base.css";
 
 const { chains, provider } = configureChains(
-  [chain.polygonMumbai, chain.polygon],
+  [chain.polygonMumbai],
   [publicProvider()]
 );
 
