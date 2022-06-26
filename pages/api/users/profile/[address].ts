@@ -1,7 +1,7 @@
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { NextApiRequest, NextApiResponse } from "next";
 
-// POST api/profile/:address
+// POST api/users/profile/:address
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse

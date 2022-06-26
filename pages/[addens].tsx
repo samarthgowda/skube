@@ -18,13 +18,12 @@ import {
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
-import Layout from "components/Layout";
 import Logo from "components/Logo";
 import NFTCard from "components/NFTCard";
 import { ipfsLink } from "lib/ipfs";
 import { useRouter } from "next/router";
 import { QRCodeSVG } from "qrcode.react";
-import { ReactElement } from "react";
+import { useEffect, useState } from "react";
 import { IoArrowBack, IoQrCode } from "react-icons/io5";
 import { useGetNFTsQuery } from "redux/services/tatum";
 import { useFetchProfileNftQuery } from "redux/services/users";
@@ -61,15 +60,47 @@ const UserProfile = () => {
   });
 
   const {
-    isLoading: isLoadingOtherNFTs,
-    data: otherNFTs,
-    error: errorOtherNFTs,
+    isLoading: isLoadingNFTs,
+    data: NFTs,
+    error: errorNFTs,
   } = useGetNFTsQuery(
     { network, address },
     {
       skip: !address,
     }
   );
+
+  const [profileNFT, setProfileNFT] = useState({});
+  const [badges, setBadges] = useState([]);
+  const [otherNFTs, setOtherNFTs] = useState([]);
+
+  useEffect(() => {
+    if (NFTs && NFTs.length > 0) {
+      let newProfileNFT = {};
+      const newBadges = [];
+      const newNFTs = [];
+      const profileContractAddress =
+        process.env.NEXT_PUBLIC_PROFILE_COLLECTION_ADDRESS.toUpperCase();
+      const badgeContractAddress =
+        process.env.NEXT_PUBLIC_BADGES_COLLECTION_ADDRESS.toUpperCase();
+
+      for (let i = 0; i < NFTs.length; i++) {
+        const collection = NFTs[i];
+        const capitalContractAddress = collection.contractAddress.toUpperCase();
+
+        if (capitalContractAddress === badgeContractAddress) {
+          newBadges.push(collection);
+        } else if (capitalContractAddress === profileContractAddress) {
+          newProfileNFT = collection;
+        } else {
+          newNFTs.push(collection);
+        }
+      }
+      setProfileNFT(newProfileNFT);
+      setBadges(newBadges);
+      setOtherNFTs(newNFTs);
+    }
+  }, [NFTs]);
 
   if (errorProfileNft) {
     return (
@@ -181,7 +212,7 @@ const UserProfile = () => {
         />
       </Box>
       <Container maxW="4xl" transform="translateY(-70px)">
-        <VStack spacing={12}>
+        <VStack spacing={12} pb={12}>
           {/* Profile */}
           <VStack>
             <Box
@@ -314,70 +345,113 @@ const UserProfile = () => {
           </VStack>
 
           {/* Other NFTs and Badges */}
-          {isLoadingOtherNFTs ? (
+          {isLoadingNFTs ? (
             <Spinner />
           ) : (
-            otherNFTs &&
-            otherNFTs.length > 0 && (
-              <Box w="100%">
-                <Box mb={8} w="100%">
-                  <Heading as="h3" size="lg" mb={2}>
-                    Other NFTs & Badges
-                  </Heading>
-                  <Text
-                    fontSize="lg"
-                    fontWeight={500}
-                    color="gray.500"
-                    lineHeight={1}
+            <Box>
+              {/* SKUBE BADGES */}
+              {badges && badges.length > 0 && (
+                <Box w="100%" mb={{ base: 8, md: 12 }}>
+                  <Box mb={8} w="100%">
+                    <Heading as="h3" size="lg" mb={2}>
+                      Skube Badges
+                    </Heading>
+                    <Text
+                      fontSize="lg"
+                      fontWeight={500}
+                      color="gray.500"
+                      lineHeight={1}
+                    >
+                      View all Skube Badges
+                    </Text>
+                  </Box>
+                  <Grid
+                    templateColumns={{
+                      base: "repeat(1, 1fr)",
+                      md: "repeat(2, 1fr)",
+                      lg: "repeat(3, 1fr)",
+                    }}
+                    gap={8}
                   >
-                    View all the other NFTs and badges that{" "}
-                    {currentProfile.name} owns
-                  </Text>
+                    {(badges || []).map((collection, index) => {
+                      return (collection.metadata || []).map((nftData, j) => {
+                        if (
+                          !nftData ||
+                          !nftData.metadata ||
+                          !nftData.metadata.image ||
+                          !nftData.metadata.name ||
+                          !nftData.metadata.from
+                        ) {
+                          return null;
+                        }
+                        return (
+                          <GridItem key={`${index}-${j}`} w="100%">
+                            <NFTCard
+                              metadata={nftData.metadata}
+                              contractAddress={collection.contractAddress}
+                              tokenId={nftData.tokenId}
+                              from={nftData.metadata.from}
+                            />
+                          </GridItem>
+                        );
+                      });
+                    })}
+                  </Grid>
                 </Box>
-                <Grid
-                  templateColumns={{
-                    base: "repeat(1, 1fr)",
-                    md: "repeat(2, 1fr)",
-                    lg: "repeat(3, 1fr)",
-                  }}
-                  gap={8}
-                >
-                  {(otherNFTs || []).map((collection, index) => {
-                    return (collection.metadata || []).map((nftData, j) => {
-                      if (
-                        !nftData ||
-                        !nftData.metadata ||
-                        !nftData.metadata.image ||
-                        !nftData.metadata.name
-                      ) {
-                        return null;
-                      }
-                      return (
-                        <GridItem key={`${index}-${j}`} w="100%">
-                          <NFTCard
-                            metadata={nftData.metadata}
-                            contractAddress={collection.contractAddress}
-                            tokenId={nftData.tokenId}
-                          />
-                        </GridItem>
-                      );
-                    });
-                  })}
-                </Grid>
-              </Box>
-            )
+              )}
+              {/* OTHER NFTS */}
+              {otherNFTs && otherNFTs.length > 0 && (
+                <Box w="100%" my={{ base: 8, md: 12 }}>
+                  <Box mb={8} w="100%">
+                    <Heading as="h3" size="lg" mb={2}>
+                      Other NFTs
+                    </Heading>
+                    <Text
+                      fontSize="lg"
+                      fontWeight={500}
+                      color="gray.500"
+                      lineHeight={1}
+                    >
+                      View all other NFTs that {currentProfile.name} owns
+                    </Text>
+                  </Box>
+                  <Grid
+                    templateColumns={{
+                      base: "repeat(1, 1fr)",
+                      md: "repeat(2, 1fr)",
+                      lg: "repeat(3, 1fr)",
+                    }}
+                    gap={8}
+                  >
+                    {(otherNFTs || []).map((collection, index) => {
+                      return (collection.metadata || []).map((nftData, j) => {
+                        if (
+                          !nftData ||
+                          !nftData.metadata ||
+                          !nftData.metadata.image ||
+                          !nftData.metadata.name
+                        ) {
+                          return null;
+                        }
+                        return (
+                          <GridItem key={`${index}-${j}`} w="100%">
+                            <NFTCard
+                              metadata={nftData.metadata}
+                              contractAddress={collection.contractAddress}
+                              tokenId={nftData.tokenId}
+                            />
+                          </GridItem>
+                        );
+                      });
+                    })}
+                  </Grid>
+                </Box>
+              )}
+            </Box>
           )}
         </VStack>
       </Container>
     </>
-  );
-};
-
-UserProfile.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <Layout bare maxW="full" px={0}>
-      {page}
-    </Layout>
   );
 };
 

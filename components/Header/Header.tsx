@@ -17,10 +17,6 @@ const LINKS = [
     name: "Badge",
     to: "/badge",
   },
-  {
-    name: "Job",
-    to: "/job",
-  },
 ];
 
 function NavTabs() {
@@ -165,6 +161,7 @@ function NavBar(props) {
     <Box my={1}>
       <NavBarContainer {...props}>
         <Logo />
+
         <NavTabs />
         <Flex align="center" gap={2}>
           <ConnectButton />

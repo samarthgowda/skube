@@ -7,11 +7,18 @@ import {
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
+import Web3Address from "components/Web3Address";
 import { ipfsLink } from "lib/ipfs";
+import NextLink from "next/link";
 // Redux
 // import { useMetadataQuery } from "redux/services/ipfs";
 
-export default function NFTCard({ metadata, contractAddress, tokenId }) {
+export default function NFTCard({
+  metadata,
+  contractAddress,
+  tokenId,
+  from = null,
+}) {
   // const { isLoading: isLoadingMetadata, data: metadata } =
   //   useMetadataQuery(uri);
 
@@ -29,6 +36,7 @@ export default function NFTCard({ metadata, contractAddress, tokenId }) {
       <Text mt={4} fontSize="2xl" fontWeight="semibold" lineHeight="short">
         {metadata?.name}
       </Text>
+
       <Text
         fontSize="sm"
         fontWeight={500}
@@ -69,7 +77,22 @@ export default function NFTCard({ metadata, contractAddress, tokenId }) {
           </Wrap>
         </Box>
       )}
-
+      {from && (
+        <Text
+          mt={4}
+          color="gray.500"
+          fontWeight={500}
+          fontSize="md"
+          lineHeight="short"
+        >
+          Issued by{" "}
+          <NextLink href={`/${from}`} passHref>
+            <Link target="_blank" rel="noopener noreferrer">
+              <Web3Address address={from} />
+            </Link>
+          </NextLink>
+        </Text>
+      )}
       <Button
         as={Link}
         href={`https://testnets.opensea.io/assets/mumbai/${contractAddress}/${tokenId}`}
