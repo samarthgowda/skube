@@ -163,11 +163,28 @@ export default function Home() {
               </Text>
             </Box>
 
-            <NextLink href="/profile" passHref>
-              <Button colorScheme="black" size="lg" px={[6, 10]} py={[4, 8]}>
-                Mint Profile
-              </Button>
-            </NextLink>
+            <Flex align="center" gap={4}>
+              <NextLink href="/profile" passHref>
+                <Button colorScheme="black" size="lg" px={[6, 10]} py={[4, 8]}>
+                  Mint Profile
+                </Button>
+              </NextLink>
+              <Link
+                href="https://www.tella.tv/video/cl4vag2st006w09labt8fdytl/view"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button
+                  variant="ghost"
+                  colorScheme="black"
+                  size="lg"
+                  px={[6, 10]}
+                  py={[4, 8]}
+                >
+                  ETH NYC Demo
+                </Button>
+              </Link>
+            </Flex>
           </Box>
         </motion.div>
       </Box>

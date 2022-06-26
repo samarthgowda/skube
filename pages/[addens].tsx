@@ -102,6 +102,8 @@ const UserProfile = () => {
     }
   }, [NFTs]);
 
+  console.log(badges);
+
   if (errorProfileNft) {
     return (
       <Box
