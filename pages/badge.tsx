@@ -28,7 +28,6 @@ import nftstorage from "lib/nftstorage";
 import { useRouter } from "next/router";
 import { useRef, useState } from "react";
 import Dropzone from "react-dropzone";
-import { BsMoonStarsFill, BsSun } from "react-icons/bs";
 import {
   IoFileTrayFullOutline,
   IoShieldCheckmarkOutline,
@@ -62,14 +61,13 @@ const Badge = () => {
   const address = account?.address;
 
   const [image, setImage] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
   const [color1, setColor1] = useState("pink");
   const [color2, setColor2] = useState("orange");
   const issuedDate = format(new Date(), "MMM dd, yyyy");
 
   const [color1Hex, color2Hex] = useToken("colors", [
-    `${color1}.${darkMode ? 600 : 300}`,
-    `${color2}.${darkMode ? 600 : 300}`,
+    `${color1}.300`,
+    `${color2}.300`,
   ]);
 
   const [metadata, setMetadata] = useState({
@@ -170,7 +168,6 @@ const Badge = () => {
           description: metadata.description,
           category: metadata.category,
           image: imageUrl,
-          dark: darkMode,
           colors: [color1Hex, color2Hex],
           attributes: metadata.attributes,
           issuedDate: issuedDate,
@@ -224,80 +221,62 @@ const Badge = () => {
       >
         <GridItem w="100%" display="flex" justifyContent="center">
           <Box
-            bgGradient={`linear(to-br, ${
-              darkMode ? "gray.900" : "white"
-            }, gray.${darkMode ? 700 : 50}, ${
-              darkMode ? "gray.900" : "white"
-            })`}
-            ref={printRef}
             rounded="lg"
-            w="500px"
-            h="350px"
-            display="flex"
-            borderColor={`gray.${darkMode ? 600 : 100}`}
-            borderWidth="4px"
-            alignItems="center"
-            justifyContent="center"
+            bgGradient={`linear(to-br, ${color1}.200, ${color2}.200)`}
+            p={1}
+            boxShadow="md"
+            h={350}
+            w={500}
+            ref={printRef}
           >
             <Box
-              rounded="lg"
-              bgGradient={`linear(to-br, ${color1}.200, ${color2}.200)`}
-              p={1}
-              boxShadow="md"
-              h={275}
-              w={425}
+              rounded="md"
+              borderWidth={1}
+              borderColor="white"
+              bgColor="rgba(255,255,255,.5)"
+              backdropFilter="blur( 4px )"
+              p={6}
+              textAlign="left"
+              display="flex"
+              flexDirection="column"
+              justifyContent="space-between"
+              h="100%"
             >
-              <Box
-                rounded="md"
-                borderWidth={1}
-                borderColor="white"
-                bgColor="rgba(255,255,255,.5)"
-                backdropFilter="blur( 4px )"
-                p={6}
-                textAlign="left"
-                display="flex"
-                flexDirection="column"
-                justifyContent="space-between"
-                h="100%"
-              >
-                <Flex alignItems="flex-start" justifyContent="space-between">
-                  <Box>
-                    <Text
-                      fontSize="2xl"
-                      textTransform="uppercase"
-                      fontFamily="mono"
-                      color="gray.900"
-                      fontWeight={600}
-                      mb={3}
-                      lineHeight={1.1}
-                    >
-                      {metadata.name || "Badge Name"}
-                    </Text>
-                    <Text fontSize="lg" fontFamily="mono" color="gray.500">
-                      {metadata.receiverName
-                        ? `${metadata.receiverName} • `
-                        : ""}
-                      {metadata.category || "🧊 Category"}
-                    </Text>
-                  </Box>
-                  <Icon
-                    fontSize="5xl"
-                    as={IoShieldCheckmarkOutline}
-                    color={`${color2}.300`}
-                    ml={3}
-                  />
-                </Flex>
-
+              <Flex alignItems="flex-start" justifyContent="space-between">
                 <Box>
                   <Text
-                    fontSize="md"
-                    fontFamily="mono"
+                    fontSize="3xl"
                     textTransform="uppercase"
-                    color="gray.500"
+                    fontFamily="mono"
+                    color="gray.900"
+                    fontWeight={600}
+                    mb={4}
+                    lineHeight={1.1}
                   >
-                    Issued {issuedDate}
+                    {metadata.name || "Badge Name"}
+                  </Text>
+                  <Text fontSize="xl" fontFamily="mono" color="gray.500">
+                    {metadata.receiverName ? `${metadata.receiverName} • ` : ""}
+                    {metadata.category || "🧊 Category"}
                   </Text>
                 </Box>
+                <Icon
+                  fontSize="5xl"
+                  as={IoShieldCheckmarkOutline}
+                  color={`${color2}.300`}
+                  ml={3}
+                />
+              </Flex>
+
+              <Box>
+                <Text
+                  fontSize="lg"
+                  fontFamily="mono"
+                  textTransform="uppercase"
+                  color="gray.500"
+                >
+                  Issued {issuedDate}
+                </Text>
               </Box>
             </Box>
           </Box>
@@ -407,11 +386,11 @@ const Badge = () => {
                         borderColor={`${color}.900`}
                         h={10}
                         w={10}
-                        bgColor={`${color}.${darkMode ? 500 : 300}`}
+                        bgColor={`${color}.300`}
                         transition="ease-in-out"
                         cursor="pointer"
                         _hover={{
-                          bgColor: `${color}.${darkMode ? 600 : 200}`,
+                          bgColor: `${color}.200`,
                         }}
                         onClick={() => setColor1(color)}
                       />
@@ -430,35 +409,17 @@ const Badge = () => {
                         borderColor={`${color}.900`}
                         h={10}
                         w={10}
-                        bgColor={`${color}.${darkMode ? 500 : 300}`}
+                        bgColor={`${color}.300`}
                         transition="ease-in-out"
                         cursor="pointer"
                         _hover={{
-                          bgColor: `${color}.${darkMode ? 600 : 200}`,
+                          bgColor: `${color}.200`,
                         }}
                         onClick={() => setColor2(color)}
                       />
                     </Tooltip>
                   ))}
                 </Box>
-              </FormControl>
-              <FormControl isRequired>
-                <FormLabel htmlFor="name" mb={2}>
-                  Theme
-                </FormLabel>
-                <Tooltip label={darkMode ? "Toggle light" : "Toggle dark"}>
-                  <Button
-                    aria-label="Toggle dark mode"
-                    onClick={() => setDarkMode(!darkMode)}
-                    colorScheme="gray"
-                    variant="outline"
-                    _focus={{ boxShadow: "none" }}
-                    w="fit-content"
-                    rounded="lg"
-                  >
-                    {!darkMode ? <BsMoonStarsFill /> : <BsSun />}
-                  </Button>
-                </Tooltip>
               </FormControl>
 
               <FormControl>
